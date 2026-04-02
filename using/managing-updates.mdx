@@ -1,0 +1,89 @@
+---
+title: "Managing updates"
+description: "How to check for updates, apply them manually, and configure automatic background updates in Accrescent."
+---
+
+Accrescent checks for updates to your installed apps and can apply them automatically in the background. The update behavior depends on your Android version and the settings you configure.
+
+## The Updates tab
+
+The **Updates** tab shows every app you have installed through Accrescent for which a newer version is available in the store. The list refreshes automatically when a package on your device is installed, updated, or removed.
+
+To manually refresh the list, navigate away from the tab and return to it. Accrescent re-evaluates update availability for all installed apps each time the tab loads.
+
+## Updating an app manually
+
+<Steps>
+  <Step title="Open the Updates tab">
+    Tap the **Updates** tab at the bottom of the screen. The list shows all apps with pending updates.
+  </Step>
+  <Step title="Tap the app">
+    Tap any app in the list to open its details screen. The details screen shows an **Update** button.
+  </Step>
+  <Step title="Tap Update">
+    Tap **Update**. Accrescent enqueues a user-initiated download worker. Progress is shown the same way as a fresh install — a progress ring on the icon and a percentage/size status line.
+  </Step>
+  <Step title="Update completes">
+    Once the update is verified and installed, the app disappears from the **Updates** tab and the details screen shows **Open** and **Uninstall**.
+  </Step>
+</Steps>
+
+## Automatic updates
+
+On Android 12 (API 31) and above, Accrescent can update apps silently in the background without any interaction from you.
+
+<Note>
+  Automatic updates require Android 12 or higher. On Android 10 and 11, Accrescent checks for updates in the background and sends a notification when one is available, but you must apply the update manually.
+</Note>
+
+### How automatic updates work
+
+When automatic updates are enabled, Accrescent schedules a background worker that runs every **8 hours**. Each run:
+
+1. Identifies all apps installed on your device that Accrescent is responsible for updating.
+2. Enqueues a background (non-user-initiated) download worker for each app that has an update available.
+3. Downloads, verifies, and installs each update silently — no notification, no interaction required.
+
+The 8-hour interval is managed by Android's `WorkManager` and may be delayed when the device is idle, in Doze mode, or when the network condition setting is not satisfied.
+
+### Update notifications (Android 10–11)
+
+On devices running Android 10 or 11, Accrescent cannot apply updates silently. Instead, when the background worker finds an available update, it posts a notification for that app. Tap the notification to open the app's details screen and apply the update manually.
+
+## Android 14+ update improvements
+
+Android 14 (API 34, "Upside Down Cake") introduces two improvements that Accrescent takes advantage of:
+
+**Gentle updates** — For background (automatic) updates of third-party apps, Accrescent uses `PackageInstaller.InstallConstraints.GENTLE_UPDATE` with a 3-day timeout. This defers the install commit until the app is not actively being used, reducing interruption. Accrescent's own self-update always commits immediately rather than using this constraint.
+
+**Updating disabled apps** — On Android 14+, Accrescent calls `SessionParams.setApplicationEnabledSettingPersistent()` for every install session. This means an update can be applied to a disabled app without re-enabling it — the app stays disabled after the update. On Android 10–13, disabled apps must be manually re-enabled before an update can proceed.
+
+## Network settings for updates
+
+You can restrict which network types Accrescent uses when downloading updates. This applies to both manual and automatic updates.
+
+<Tabs>
+  <Tab title="Unmetered (default)">
+    Updates only download over Wi-Fi or other unmetered connections. This is the default setting and prevents unexpected mobile data usage.
+  </Tab>
+  <Tab title="Not Roaming">
+    Updates download on any network that is not roaming — including mobile data on your home network — but not when your device is connected to a foreign carrier.
+  </Tab>
+  <Tab title="Any">
+    Updates download on any available network, including metered mobile data and roaming connections.
+  </Tab>
+</Tabs>
+
+To change the network setting, go to **Settings → Network condition**.
+
+<Warning>
+  Selecting **Any** allows Accrescent to use mobile data, including roaming data, for downloads. This may result in unexpected data charges depending on your carrier plan.
+</Warning>
+
+## Summary of update behavior by Android version
+
+| Android version | Automatic updates | Gentle update constraints | Update disabled apps without re-enabling |
+|---|---|---|---|
+| Android 10–11 | Notification only — manual install required | No | No |
+| Android 12–13 | Silent background updates every 8 hours | No | No |
+| Android 14+ | Silent background updates every 8 hours | Yes (3-day timeout) | Yes |

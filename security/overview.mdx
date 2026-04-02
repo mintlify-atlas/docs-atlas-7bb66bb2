@@ -1,0 +1,88 @@
+---
+title: "Security & Privacy overview"
+description: "How Accrescent's architecture defends against common app store threats and protects your device."
+---
+
+Accrescent is built around a threat model that traditional Android app stores largely ignore. This page explains what attacks the security architecture defends against and how each layer of the design addresses them.
+
+## Threat model
+
+Most Android app store security failures fall into one of four categories:
+
+| Threat | Description |
+|--------|-------------|
+| **Signing key substitution** | An attacker replaces a legitimate app with one signed by a different key, tricking the store into distributing malware under a trusted package name |
+| **Repository tampering** | An attacker modifies the metadata that describes which apps are available and what their expected signatures are |
+| **Replay attacks** | An attacker serves a stale (outdated or revoked) version of the repository metadata to prevent users from receiving security updates |
+| **Downgrade attacks** | An attacker delivers an older, vulnerable version of an app even after the developer has pushed a fix |
+
+Accrescent addresses all four with distinct mechanisms described below.
+
+## Core security mechanisms
+
+<CardGroup cols={2}>
+  <Card title="Signing key pinning" icon="key" href="/security/signing-key-pinning">
+    Every app in the repository has its developer's signing certificate hash pinned in the signed metadata. Accrescent verifies the hash before committing any install session.
+  </Card>
+  <Card title="Signed repository metadata" icon="file-check" href="/security/repository-verification">
+    The repository index is signed with a minisign key whose public key is compiled into the app. No unsigned metadata is ever parsed or acted on.
+  </Card>
+  <Card title="Minimum version enforcement" icon="shield-check" href="/security/signing-key-pinning">
+    Each app entry carries a `min_version_code` field. Accrescent refuses to install a version older than this floor, eliminating silent downgrade attacks.
+  </Card>
+  <Card title="Replay protection" icon="clock" href="/security/repository-verification">
+    The signed metadata includes a Unix timestamp. Accrescent rejects any metadata whose timestamp is older than a compiled-in minimum, preventing an attacker from replaying a stale index.
+  </Card>
+</CardGroup>
+
+## No remote APK signing
+
+Accrescent does **not** re-sign apps. Developers retain their own signing keys and submit APKs that are already signed. This means:
+
+- Accrescent cannot unilaterally replace a developer's signing key (unlike services such as Google Play App Signing).
+- If a developer's key is compromised, Accrescent cannot silently swap in a new one — but it also cannot be coerced into doing so.
+- The signing certificate hash pinned in the repository metadata is the one the developer controls.
+
+<Note>
+  Because developers keep their own keys, the signing certificate hash pinned for each app is stable for the lifetime of that app. You can verify it independently.
+</Note>
+
+## Install-time verification flow
+
+When you install or update an app, Accrescent performs the following checks before the system installer ever commits the session:
+
+<Steps>
+  <Step title="Fetch and verify repository metadata">
+    Accrescent downloads `repodata.1.json` and its minisign signature from `https://repo.accrescent.app`. It verifies the signature against the public key compiled into the app before deserializing any content.
+  </Step>
+  <Step title="Check the timestamp">
+    The `timestamp` field in the verified metadata must be at or above the compiled-in minimum value. If it is not, the metadata is rejected as a potential replay.
+  </Step>
+  <Step title="Look up the pinned signing certificate hash">
+    For the app being installed, Accrescent reads `signing_cert_hash` from the verified metadata. This is the only certificate that is allowed to sign the APK.
+  </Step>
+  <Step title="Verify the APK's signing certificate">
+    Accrescent extracts the `signingInfo` from the staged APK. It rejects any APK that has multiple signers or whose signing certificate history does not include a certificate matching the pinned SHA-256 hash.
+  </Step>
+  <Step title="Enforce the minimum version code">
+    The APK's `versionCode` must be at or above `min_version_code` from the metadata. If it is lower, the install is aborted.
+  </Step>
+  <Step title="Commit the install session">
+    Only after all checks pass does Accrescent commit the `PackageInstaller` session to the Android system.
+  </Step>
+</Steps>
+
+## Privacy
+
+Accrescent does not require an account to browse or install apps. Network requests are limited to:
+
+- Fetching the repository metadata index from `https://repo.accrescent.app`
+- Fetching APK splits via URLs returned by the gRPC app-store API
+
+No personal information is collected or transmitted to identify you as an individual user.
+
+## Further reading
+
+- [Signing key pinning](/security/signing-key-pinning) — how certificate hashes are stored and verified
+- [Repository verification](/security/repository-verification) — the minisign signature scheme and replay protection details
+- [Verifying Accrescent](/security/verifying-accrescent) — how to verify the Accrescent APK itself before trusting it

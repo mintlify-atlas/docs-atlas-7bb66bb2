@@ -1,0 +1,129 @@
+---
+title: 'Building from source'
+description: 'How to set up your environment and build Accrescent locally, including Gradle dependency verification, build types, and release signing.'
+---
+
+This page walks you through building the Accrescent Android client from source.
+
+## Prerequisites
+
+Before you build, make sure you have the following installed:
+
+- **Android Studio** — the recommended IDE for development
+- **JDK 21** — the project targets JVM 21
+- **Android SDK** with API level 36 (compile SDK) installed via the SDK Manager
+
+The project's minimum supported Android version is API 29 (Android 10).
+
+<Note>
+  The Gradle wrapper is included in the repository, so you do not need to install Gradle separately.
+</Note>
+
+## Clone the repository
+
+```bash
+git clone https://github.com/accrescent/accrescent.git
+cd accrescent
+```
+
+## Gradle dependency verification
+
+Accrescent uses [Gradle dependency verification](https://docs.gradle.org/current/userguide/dependency_verification.html) to ensure the integrity of all resolved dependencies. Verification metadata is stored in `gradle/verification-metadata.xml`.
+
+<Warning>
+  The verification metadata only includes the Linux variant of `aapt2`. If you are building on macOS or Windows and encounter a dependency verification error, temporarily delete `gradle/verification-metadata.xml` and retry. Do not commit this deletion.
+</Warning>
+
+```bash
+# If you hit a verification failure on a non-Linux OS, remove the metadata file temporarily
+rm gradle/verification-metadata.xml
+./gradlew assembleDebug
+```
+
+You can restore the file with `git restore gradle/verification-metadata.xml` after confirming the build succeeds.
+
+## Build types
+
+The project defines two build types: `debug` and `release`.
+
+<AccordionGroup>
+  <Accordion title="Debug build">
+    The debug build uses the application ID suffix `.dev`, so the debug and release variants can be installed side-by-side on a device.
+
+    ```bash
+    ./gradlew assembleDebug
+    ```
+
+    The resulting APK is at `app/build/outputs/apk/debug/`.
+  </Accordion>
+
+  <Accordion title="Release build">
+    The release build enables minification and resource shrinking via R8 and ProGuard. It produces a smaller, optimized APK.
+
+    ```bash
+    ./gradlew assembleRelease
+    ```
+
+    Without a signing configuration the release APK will be unsigned. See [signing setup](#signing-setup) below if you need a signed build.
+  </Accordion>
+</AccordionGroup>
+
+## Signing setup
+
+Release builds optionally read signing configuration from a `keystore.properties` file at the root of the project. If the file is not present, the release build is produced unsigned.
+
+<Steps>
+  <Step title="Create keystore.properties">
+    Create a file named `keystore.properties` in the project root with the following keys:
+
+    ```properties keystore.properties
+    storeFile=/absolute/path/to/your.keystore
+    storePassword=your-store-password
+    keyAlias=your-key-alias
+    keyPassword=your-key-password
+    ```
+  </Step>
+
+  <Step title="Run the release build">
+    ```bash
+    ./gradlew assembleRelease
+    ```
+
+    Gradle will detect `keystore.properties` and apply the signing configuration automatically.
+  </Step>
+</Steps>
+
+<Warning>
+  Never commit `keystore.properties` or your keystore file to version control.
+</Warning>
+
+### Signature scheme
+
+Accrescent enforces APK Signature Schemes v3 and v4 only. v2 signing is explicitly disabled in the build configuration:
+
+| Scheme | Enabled |
+| ------ | ------- |
+| v2     | No      |
+| v3     | Yes     |
+| v4     | Yes     |
+
+This matches the signing requirements for apps distributed through Accrescent.
+
+## Key dependencies
+
+The project uses the following major libraries and plugins. All versions are managed in `gradle/libs.versions.toml`.
+
+| Dependency | Purpose |
+| ---------- | ------- |
+| Android Gradle Plugin | Android build toolchain |
+| Kotlin | Primary language (JVM 21 target) |
+| Jetpack Compose + Material 3 | UI framework |
+| Dagger / Hilt | Dependency injection |
+| KSP | Kotlin Symbol Processing (annotation processing) |
+| Room | Local database |
+| kotlinx.serialization | JSON serialization |
+| OkHttp | HTTP client |
+| gRPC (Android + OkHttp) | Backend communication |
+| Coil | Image loading |
+
+Dependencies are resolved from Google Maven, Maven Central, and the Buf Maven registry (`buf.build/gen/maven`).

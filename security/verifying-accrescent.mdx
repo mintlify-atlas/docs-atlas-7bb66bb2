@@ -1,0 +1,136 @@
+---
+title: "Verifying Accrescent"
+description: "How to verify the Accrescent APK's signing certificate before trusting the app store."
+---
+
+Accrescent's security guarantees rest on a chain of trust. The repository metadata is verified against a public key compiled into the app, and that key is what ensures the signing certificate hashes for every other app are trustworthy. If you install a tampered version of Accrescent, the entire chain is broken.
+
+This page explains how to verify that the copy of Accrescent you install is the genuine, unmodified release.
+
+## Accrescent's signing certificate hash
+
+Accrescent's official SHA-256 signing certificate hash is:
+
+```
+067a40c4193aad51ac87f9ddfdebb15e24a1850babfa4821c28c5c25c3fdc071
+```
+
+This hash uniquely identifies the signing certificate used for all official Accrescent releases. Any APK that does not carry a signing certificate whose SHA-256 hash matches this value is not an official Accrescent release.
+
+<Warning>
+  Do not install an APK that claims to be Accrescent but whose signing certificate hash does not match the value above. A mismatched hash means the APK was signed with a different key and could be a tampered or counterfeit build.
+</Warning>
+
+## Cross-checking the hash
+
+A single source is not sufficient to confirm a certificate hash. Cross-check the value above against at least one independent source:
+
+- **The Accrescent README** in the [official source repository](https://github.com/accrescent/accrescent) — the hash appears in the "Signing certificate hash" section
+- **The Accrescent website** FAQ at `https://accrescent.app/faq#verifying`
+
+If all sources agree, you can be confident the hash is correct.
+
+<Tip>
+  Checking multiple independent sources defends against a compromise of any single channel. An attacker who controls one distribution point would need to simultaneously compromise all of them to deceive you.
+</Tip>
+
+## How to verify before installing
+
+Use Android's built-in tools or `apksigner` from the Android SDK build tools to inspect the signing certificate of the APK before installing it.
+
+### Using apksigner (recommended)
+
+<Steps>
+  <Step title="Install the Android SDK build tools">
+    `apksigner` ships with the Android SDK build tools. Install the SDK from [developer.android.com](https://developer.android.com/tools) or through Android Studio's SDK Manager.
+  </Step>
+  <Step title="Download the Accrescent APK">
+    Obtain the APK from the official source. Note where you saved it.
+  </Step>
+  <Step title="Run apksigner to print the certificate hash">
+    ```bash
+    apksigner verify --print-certs /path/to/accrescent.apk
+    ```
+
+    In the output, look for the line beginning with `Signer #1 certificate SHA-256 digest:`.
+  </Step>
+  <Step title="Compare the output to the expected hash">
+    The `SHA-256 digest` value must match:
+
+    ```
+    067a40c4193aad51ac87f9ddfdebb15e24a1850babfa4821c28c5c25c3fdc071
+    ```
+
+    If they do not match, discard the APK and obtain it from a different source.
+  </Step>
+</Steps>
+
+### Using keytool
+
+If you do not have `apksigner` available, you can use `keytool` from the JDK:
+
+<Steps>
+  <Step title="Extract the signing certificate from the APK">
+    APKs are ZIP archives. The signing certificate is stored in the `META-INF/` directory. Unzip the APK and locate the `.RSA` or `.EC` file:
+
+    ```bash
+    unzip -p accrescent.apk META-INF/CERT.RSA > cert.der
+    ```
+  </Step>
+  <Step title="Print the certificate fingerprint">
+    ```bash
+    keytool -printcert -file cert.der
+    ```
+
+    Look for the `SHA256:` fingerprint in the output.
+  </Step>
+  <Step title="Compare to the expected hash">
+    The fingerprint printed by `keytool` uses colon-separated byte pairs (e.g., `06:7A:40:...`). Strip the colons and convert to lowercase to compare it with the expected hash:
+
+    ```
+    067a40c4193aad51ac87f9ddfdebb15e24a1850babfa4821c28c5c25c3fdc071
+    ```
+  </Step>
+</Steps>
+
+## How to verify after installing
+
+If Accrescent is already installed on your device, you can verify its signing certificate using `adb`:
+
+```bash
+adb shell pm get-app-signing-info --version 2 app.accrescent.client
+```
+
+Look for the `SHA 256` digest in the output and compare it to the expected hash above.
+
+<Note>
+  The package name for Accrescent is `app.accrescent.client`. Use this exact string in any `adb` or `pm` commands.
+</Note>
+
+## Why this matters
+
+Accrescent compiles its repository public key directly into the binary:
+
+```kotlin Constants.kt
+const val REPODATA_PUBKEY = "RWT8aZ/NdUmXCPqQ0we7UyCe34q1xRfncBFVK5dI3ok9BkL1bFF3mgh3"
+```
+
+A tampered build of Accrescent could substitute a different public key here, causing the client to trust a repository the attacker controls. Verifying Accrescent's own signing certificate before you use it is therefore the root of the entire trust chain.
+
+<AccordionGroup>
+  <Accordion title="What if the hash matches but I still have doubts?">
+    A matching signing certificate hash proves the APK was signed with the official Accrescent key. It does not, by itself, prove the APK corresponds to a specific source commit. For source-level verification, you can build Accrescent from source and compare the resulting APK. Reproducible build support is tracked in the Accrescent issue tracker.
+  </Accordion>
+  <Accordion title="Can the signing key ever change?">
+    App signing keys on Android are permanent for a given package name — Android will refuse to install an update signed with a different key unless key rotation is performed. If Accrescent ever performs a key rotation, the new certificate hash will be published across all official channels simultaneously. Always verify against multiple sources before trusting a new hash.
+  </Accordion>
+  <Accordion title="What is a SHA-256 certificate hash?">
+    Android signing certificates are X.509 certificates encoded in DER format. The SHA-256 hash is computed over the raw DER bytes of the certificate. It uniquely identifies the certificate (and therefore the key pair) regardless of any metadata fields like the subject name or validity dates.
+  </Accordion>
+</AccordionGroup>
+
+## Related pages
+
+- [Repository verification](/security/repository-verification) — how the signed repository metadata protects the trust chain after you have a verified copy of Accrescent
+- [Signing key pinning](/security/signing-key-pinning) — how Accrescent verifies other apps' signing certificates using the same mechanism
+- [Security overview](/security/overview) — the full security model

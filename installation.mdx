@@ -1,0 +1,74 @@
+---
+title: "Installation"
+description: "How to download and install Accrescent on your Android device"
+---
+
+Accrescent is not available on the Google Play Store. You install it by sideloading the APK directly from [accrescent.app](https://accrescent.app). This is a one-time process — after installation, Accrescent manages its own updates.
+
+## Before you begin
+
+- Your device must run **Android 10 (API level 29)** or later.
+- You need a browser or file manager capable of initiating an APK install.
+- You must allow your browser or file manager to install unknown apps (Android will prompt you during installation).
+
+<Warning>
+  Only download Accrescent from [accrescent.app](https://accrescent.app). Third-party mirrors may distribute modified APKs. After installing, verify the signing certificate hash to confirm authenticity.
+</Warning>
+
+## Install Accrescent
+
+<Steps>
+  <Step title="Download the APK">
+    Open [accrescent.app](https://accrescent.app) in your Android browser and tap the download button to save the latest APK to your device.
+  </Step>
+  <Step title="Open the APK">
+    Open your downloads folder or notification shade and tap the downloaded file. Android will ask which app should open it.
+
+    <Note>
+      If you see "For your security, your phone is not allowed to install unknown apps from this source," tap **Settings** and enable **Allow from this source**, then go back and tap **Install**.
+    </Note>
+  </Step>
+  <Step title="Confirm the installation">
+    Review the permissions Android displays and tap **Install**. The install takes a few seconds.
+  </Step>
+  <Step title="Verify the signing certificate">
+    After installation, confirm you have the genuine build by checking the signing certificate. Open **Settings → Apps → Accrescent → App details**, then verify the certificate fingerprint matches:
+
+    ```text
+    067a40c4193aad51ac87f9ddfdebb15e24a1850babfa4821c28c5c25c3fdc071
+    ```
+
+    You can also cross-check this hash on [accrescent.app/faq#verifying](https://accrescent.app/faq#verifying).
+  </Step>
+</Steps>
+
+## Updating Accrescent
+
+Once installed, Accrescent updates itself through its own update mechanism — you do not need to manually download new APKs from the website.
+
+On **Android 12 and later**, updates happen automatically in the background without any user interaction.
+
+On **Android 10 and 11**, Accrescent will prompt you to approve each update when one is available.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title='"Parse error" or "App not installed"'>
+    This usually means the download was incomplete or the file was corrupted. Delete the APK, re-download it from [accrescent.app](https://accrescent.app), and try again.
+  </Accordion>
+  <Accordion title="Android blocks the install with a Play Protect warning">
+    Google Play Protect may warn you about apps not distributed through the Play Store. Tap **Install anyway** to proceed. Accrescent is open source and its signing certificate is publicly verifiable.
+  </Accordion>
+  <Accordion title='"Unknown sources" option is not visible'>
+    On Android 8 and later, unknown app installation is granted per-source rather than globally. Open your browser, go to **Settings → Install unknown apps**, and enable the toggle for that browser.
+  </Accordion>
+  <Accordion title="Certificate fingerprint does not match">
+    Do not use this build. You may have downloaded a modified APK from an unofficial source. Remove the app immediately and download again from [accrescent.app](https://accrescent.app).
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<Card title="Quickstart" icon="rocket" href="/quickstart">
+  Browse the app catalog, install your first app, and configure updates
+</Card>

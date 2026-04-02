@@ -1,0 +1,76 @@
+---
+title: "Introduction"
+description: "What Accrescent is, why it exists, and what makes it different from other Android app stores"
+---
+
+Accrescent is a private and secure Android app store built with modern security and privacy practices at its core. It gives you strong cryptographic guarantees about every app you install, without requiring an account or trusting the store itself.
+
+<Note>
+  Accrescent is currently in early alpha. Features and behavior may change as the project matures.
+</Note>
+
+## What Accrescent is
+
+Most Android app stores operate as trusted intermediaries — they can re-sign APKs, silently swap certificates, and inject code into update packages. Users have no way to verify that what they install matches what the developer published.
+
+Accrescent takes a different approach. The repository signs its own metadata, each app's signing certificate is pinned, and the client verifies everything locally before installing. The store cannot tamper with an app without being detected.
+
+## Key features
+
+<CardGroup cols={2}>
+  <Card title="Signing key pinning" icon="key">
+    Each app's signing certificate is recorded in the repository metadata. If the certificate ever changes, Accrescent rejects the update.
+  </Card>
+  <Card title="Signed repository metadata" icon="file-signature">
+    The entire app catalog is cryptographically signed. The client verifies the signature on every fetch using a pinned public key.
+  </Card>
+  <Card title="Automatic, unattended updates" icon="arrows-rotate">
+    On Android 12 and later, Accrescent updates apps silently in the background without any user interaction and without requiring privileged system access.
+  </Card>
+  <Card title="Split APK support" icon="puzzle-piece">
+    Accrescent downloads only the splits your device needs — the correct ABI, language, and screen density — reducing download size.
+  </Card>
+  <Card title="No remote APK signing" icon="ban">
+    Accrescent never re-signs apps on your behalf. Developers sign their own APKs before submission.
+  </Card>
+  <Card title="No account required" icon="user-slash">
+    You can browse and install every app in the catalog without creating an account or providing any personal information.
+  </Card>
+</CardGroup>
+
+## What Accrescent is not
+
+Accrescent is not an open submission platform. Apps go through meaningful quality control before they appear in the catalog. This keeps the catalog smaller but more trustworthy.
+
+Accrescent is also not a replacement for system-level trust. It relies on Android's package installer, which means apps are subject to the same Android permission model as any other app source.
+
+## System requirements
+
+| Feature | Minimum Android version |
+|---|---|
+| Install and browse apps | Android 10 (API level 29) |
+| Automatic unattended updates | Android 12 (API level 31) |
+| App archiving support | Android 15 (API level 35) |
+
+Accrescent targets API level 36 and supports Android TV (Leanback) in addition to standard Android devices.
+
+## Verifying Accrescent itself
+
+Before you trust Accrescent to manage your apps, you should verify that you have the genuine build. Accrescent's SHA-256 signing certificate hash is:
+
+```text
+067a40c4193aad51ac87f9ddfdebb15e24a1850babfa4821c28c5c25c3fdc071
+```
+
+Check this value against the hash published on [accrescent.app](https://accrescent.app/faq#verifying) before installing. The app ID is `app.accrescent.client`.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="mobile" href="/installation">
+    Download and sideload Accrescent on your Android device
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Browse the catalog, install your first app, and manage updates
+  </Card>
+</CardGroup>

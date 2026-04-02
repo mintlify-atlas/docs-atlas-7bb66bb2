@@ -1,0 +1,90 @@
+---
+title: "Settings"
+description: "A reference for every option in the Accrescent Settings screen, including appearance, updater behavior, and about links."
+---
+
+To open settings, tap the settings icon in the top-right corner of the main screen. The settings are divided into three groups: **Customization**, **Updater**, and **About**.
+
+## Customization
+
+These settings control the visual appearance of Accrescent.
+
+### Dynamic color
+
+<Note>
+  Dynamic color is only available on Android 12 (API 31) and above.
+</Note>
+
+**Dynamic color** adapts Accrescent's color scheme to match your device wallpaper using Android's Material You system. When enabled, the purple accent colors are replaced with tones derived from your current wallpaper.
+
+| Value | Description |
+|---|---|
+| Off (default) | Accrescent uses its built-in purple color palette |
+| On | Accrescent inherits colors from your device's wallpaper-based dynamic palette |
+
+Tap the **Dynamic color** row to toggle it on or off.
+
+### Theme
+
+**Theme** controls whether Accrescent uses a dark or light interface. Tap the **Theme** row to open a selection dialog.
+
+| Option | Description |
+|---|---|
+| Dark | Always use a dark background and light text |
+| Light | Always use a light background and dark text |
+| System (default) | Follow the Android system dark/light mode setting |
+
+<Tip>
+  When **Dynamic color** is enabled and **Theme** is set to **System**, Accrescent adapts both its colors and its brightness mode to match your device settings automatically.
+</Tip>
+
+---
+
+## Updater
+
+These settings control when and how Accrescent downloads app updates.
+
+### Automatic updates
+
+<Note>
+  Automatic updates are only available on Android 12 (API 31) and above.
+</Note>
+
+**Automatic updates** controls whether Accrescent silently downloads and installs available updates in the background every 8 hours.
+
+| Value | Description |
+|---|---|
+| On (default) | Updates are downloaded and installed silently in the background |
+| Off | Accrescent checks for updates but only sends a notification — you apply updates manually |
+
+Tap the **Automatic updates** row to toggle it on or off. See [Managing updates](/using/managing-updates) for more detail on how background updates work.
+
+### Network condition
+
+**Network condition** restricts which network types Accrescent is allowed to use when downloading updates. Tap the **Network condition** row to open a selection dialog.
+
+| Option | Description |
+|---|---|
+| Any | Downloads on any connected network, including metered mobile data and roaming |
+| Not Roaming | Downloads on any non-roaming network; allows mobile data on your home network |
+| Unmetered (default) | Downloads only on Wi-Fi or other unmetered connections |
+
+<Warning>
+  Changing **Network condition** to **Any** permits Accrescent to use mobile data, including when roaming. Verify your carrier plan before enabling this option to avoid unexpected charges.
+</Warning>
+
+This setting applies to both the automatic background updater and to manual update downloads you initiate from the **Updates** tab.
+
+---
+
+## About
+
+These entries open external links related to the Accrescent project.
+
+### Donate
+
+Tap **Donate** to open the Accrescent donation page in your browser. Supporting the project helps fund continued development.
+
+### Source code
+
+Tap **Source code** to open the Accrescent source code repository in your browser. Accrescent is open source and its code is publicly auditable.

@@ -1,0 +1,91 @@
+---
+title: 'Submitting apps'
+description: 'How to submit your Android app to Accrescent, including quality control standards, security requirements, signing key ownership, and the review process.'
+---
+
+This page is for Android developers who want to publish their app on Accrescent.
+
+<Note>
+  Accrescent is currently in early alpha. The submission process and requirements are still being refined. Check the [meta repository](https://github.com/accrescent/meta) and [accrescent.app](https://accrescent.app) for the most up-to-date submission details.
+</Note>
+
+## What Accrescent is
+
+Accrescent is a novel Android app store focused on security, privacy, and usability. It differs from other stores in several important ways that affect both how you submit your app and how your users receive updates.
+
+<CardGroup cols={2}>
+  <Card title="You keep your signing keys" icon="key">
+    Accrescent does not perform remote APK signing. You sign your own APKs with your own keys. Your signing key never leaves your control.
+  </Card>
+  <Card title="Signing key pinning" icon="lock">
+    Once your app is accepted, Accrescent pins your signing certificate. This prevents unauthorized updates from being distributed under your app's package name, even if a different key were used to sign a replacement APK.
+  </Card>
+  <Card title="Meaningful quality control" icon="shield-check">
+    Submitted apps go through a real review process. Accrescent enforces security requirements and does not function as an open, unreviewed app marketplace.
+  </Card>
+  <Card title="No account required to install" icon="user-slash">
+    Users can install your app from Accrescent without creating an account. This is by design.
+  </Card>
+</CardGroup>
+
+## Signing requirements
+
+Because Accrescent pins your signing certificate at submission time, signing setup is critical to get right before you submit.
+
+<Steps>
+  <Step title="Generate your signing key">
+    Create a release signing key if you do not already have one. Keep the private key secure — losing it means you cannot publish updates to your existing app listing.
+  </Step>
+  <Step title="Sign with v3 and v4 schemes">
+    Accrescent requires APK Signature Scheme v3 and v4. Disable v2 signing. In your `build.gradle.kts`:
+
+    ```kotlin build.gradle.kts
+    signingConfigs {
+        create("release") {
+            // ...keystore configuration...
+            enableV2Signing = false
+            enableV3Signing = true
+            enableV4Signing = true
+        }
+    }
+    ```
+  </Step>
+  <Step title="Use the same key for all future updates">
+    Once your app is published, Accrescent pins the signing certificate from your first submission. All subsequent updates must be signed with the same key. There is no key rotation mechanism analogous to Google's Play App Signing.
+  </Step>
+</Steps>
+
+<Warning>
+  Do not lose your private signing key. Unlike stores that manage signing on your behalf, Accrescent has no way to recover your app listing if you lose the key used at submission.
+</Warning>
+
+## Quality control
+
+Accrescent performs meaningful review of submitted apps. This is intentional — it is a stated design goal, not an accident of process. Apps that do not meet Accrescent's standards will not be accepted.
+
+The review process evaluates:
+
+- **Security practices** — how your app handles sensitive data, what permissions it requests, and whether those permissions are justified
+- **Privacy practices** — whether your app collects or transmits user data unnecessarily
+- **General quality** — the app should be functional and not obviously broken
+
+<Note>
+  Accrescent is not designed to be a store where any developer can publish any app with no oversight. The review process exists to protect users.
+</Note>
+
+## How to submit
+
+The submission process is managed through the Accrescent website and meta repository.
+
+<CardGroup cols={2}>
+  <Card title="Accrescent website" icon="globe" href="https://accrescent.app">
+    Visit accrescent.app for official submission instructions and requirements.
+  </Card>
+  <Card title="Meta repository" icon="github" href="https://github.com/accrescent/meta">
+    The meta repository tracks cross-cutting discussions including app submission policy and process.
+  </Card>
+</CardGroup>
+
+## Questions
+
+If you have questions about the submission process, join the [#accrescent:matrix.org](https://matrix.to/#/#accrescent:matrix.org) Matrix room. It is the fastest way to reach the development team.

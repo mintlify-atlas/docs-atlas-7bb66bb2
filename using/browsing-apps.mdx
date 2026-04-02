@@ -1,0 +1,100 @@
+---
+title: "Browsing apps"
+description: "Learn how to explore the Accrescent app catalog, search for apps, and view app details."
+---
+
+Accrescent organizes its interface into three tabs at the bottom of the screen. The **All Apps** tab is your entry point for discovering new apps.
+
+## The three tabs
+
+<CardGroup cols={3}>
+  <Card title="All Apps" icon="grid-2">
+    Browse every app available in the Accrescent catalog.
+  </Card>
+  <Card title="Installed" icon="download">
+    View apps you have already installed through Accrescent.
+  </Card>
+  <Card title="Updates" icon="arrows-rotate">
+    See apps with pending updates available to download.
+  </Card>
+</CardGroup>
+
+## Browsing the All Apps tab
+
+When you open Accrescent, the **All Apps** tab loads the full catalog from the Accrescent app store. Apps are fetched in pages of 50 as you scroll down, so the list loads progressively as you browse.
+
+Each entry in the list shows:
+
+- The app icon
+- The app name
+- A short description
+
+Tap any app in the list to open its detail screen.
+
+## Searching for an app
+
+Accrescent does not have a dedicated search bar on the main screen. To find a specific app, scroll through the **All Apps** list or navigate directly to an app's detail screen if you know its identifier.
+
+<Tip>
+  Scrolling past the initial page fetches more apps automatically from the store.
+</Tip>
+
+## App details screen
+
+Tapping an app opens its details screen, which shows you everything you need to know before installing.
+
+### What you'll see
+
+| Element | Description |
+|---|---|
+| App icon | The icon published by the developer |
+| Name | The app's full name |
+| Short description | A brief summary of what the app does |
+| Version | The current version string available in the store, displayed in monospace |
+| Action buttons | Context-sensitive buttons based on the app's current state |
+
+### Loading states
+
+When the details screen first opens, Accrescent fetches the app listing and package information from the store server. During this time a loading indicator is shown. If the fetch fails, the screen displays an error with an appropriate action:
+
+<AccordionGroup>
+  <Accordion title="Network error">
+    Shown when the store server is unreachable. Tap **Retry** to try again.
+  </Accordion>
+  <Accordion title="Timeout">
+    Shown when the request takes too long. Tap **Retry** to try again.
+  </Accordion>
+  <Accordion title="App not found">
+    Shown when the app ID does not exist in the store. Tap **Go back** to return to the previous screen.
+  </Accordion>
+  <Accordion title="Internal error">
+    Shown when the server returns an unexpected error. Tap **Go back** to return to the previous screen.
+  </Accordion>
+</AccordionGroup>
+
+### Action buttons
+
+The buttons shown on the details screen depend on whether the app is installed, up to date, and compatible with your device:
+
+| State | Buttons shown |
+|---|---|
+| Not installed, compatible | **Install** |
+| Not installed, archived (Android 15+) | **Unarchive** |
+| Installed, up to date, enabled | **Uninstall**, **Open** |
+| Installed, up to date, disabled | **Uninstall**, **Enable** |
+| Installed, update available (enabled or Android 14+) | **Uninstall**, **Update** |
+| Installed, update available (disabled, Android 10–13) | **Uninstall**, **Enable** |
+| Downloading or installing | **Cancel** |
+| Incompatible with your device | *(no action buttons)* |
+
+<Note>
+  Accrescent's own app listing shows only **Uninstall** — no **Open** button — even when it is installed and up to date. This prevents accidentally uninstalling the store you are currently using.
+</Note>
+
+<Note>
+  If no action buttons appear, the app is not compatible with your device's hardware or Android version.
+</Note>
+
+### Download progress
+
+While an app is downloading, the app icon displays a circular progress indicator. The screen also shows a status line with the download percentage and total file size in megabytes (for example, `42.0% of 18 MB`). Once the download completes, the indicator switches to an indeterminate spinner while the package is being verified and installed.

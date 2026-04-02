@@ -1,0 +1,125 @@
+---
+title: "Repository verification"
+description: "How Accrescent fetches, signs, and validates the repository metadata to prevent tampering and replay attacks."
+---
+
+Accrescent's repository metadata is the authoritative source of truth for which apps exist, what their signing certificates are, and what versions are acceptable. Protecting this metadata is therefore critical: if an attacker can substitute their own metadata, all other security guarantees collapse. This page explains how Accrescent fetches the metadata and verifies it before trusting any of its contents.
+
+## The repository metadata file
+
+The metadata lives at:
+
+```
+https://repo.accrescent.app/repodata.1.json
+```
+
+The `1` in the filename is the schema version, defined by `REPODATA_VERSION = 1` in the client. Its companion signature file is fetched from:
+
+```
+https://repo.accrescent.app/repodata.1.json.sig
+```
+
+The JSON file has the following top-level structure:
+
+```json repodata.1.json
+{
+  "timestamp": 1761300000,
+  "apps": {
+    "com.example.app": {
+      "min_version_code": 42,
+      "signing_cert_hash": "e3b0c44298fc1c149afb..."
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `timestamp` | `Long` | Unix timestamp of when this version of the metadata was generated |
+| `apps` | `Map<String, App>` | Map of package ID to app metadata |
+
+The `apps` map is described in detail in [Signing key pinning](/security/signing-key-pinning).
+
+## Signature scheme: minisign
+
+Accrescent uses [minisign](https://jedisct1.github.io/minisign/) for repository metadata signatures. Minisign uses Ed25519, a modern, fast, and well-audited elliptic-curve signature algorithm.
+
+The repository's public key is compiled directly into the Accrescent app:
+
+```kotlin Constants.kt
+const val REPODATA_PUBKEY = "RWT8aZ/NdUmXCPqQ0we7UyCe34q1xRfncBFVK5dI3ok9BkL1bFF3mgh3"
+```
+
+<Warning>
+  This public key is part of the compiled application binary. An attacker cannot substitute it without replacing the Accrescent APK itself — which is why [verifying the Accrescent APK](/security/verifying-accrescent) before trusting it matters.
+</Warning>
+
+## Fetch and verify flow
+
+The entire fetch-and-verify sequence is implemented in `RepoDataFetcherImpl.fetchRepoData()`:
+
+<Steps>
+  <Step title="Download the metadata JSON">
+    Accrescent fetches `https://repo.accrescent.app/repodata.1.json` over HTTPS using OkHttp.
+  </Step>
+  <Step title="Download the signature file">
+    Accrescent fetches `https://repo.accrescent.app/repodata.1.json.sig` over HTTPS.
+  </Step>
+  <Step title="Verify the signature">
+    Before deserializing or reading any field in the JSON, Accrescent calls `verifySignature()`:
+
+    ```kotlin RepoDataFetcherImpl.kt
+    if (!verifySignature(REPODATA_PUBKEY, repoDataFile.toByteArray(), signature)) {
+        throw GeneralSecurityException(context.getString(R.string.sig_verify_failed))
+    }
+    ```
+
+    If verification fails, a `GeneralSecurityException` is thrown and the metadata is discarded entirely. No data from the file is used.
+  </Step>
+  <Step title="Deserialize the verified JSON">
+    Only after successful signature verification does Accrescent deserialize the JSON:
+
+    ```kotlin RepoDataFetcherImpl.kt
+    return format.decodeFromString(repoDataFile)
+    ```
+
+    The deserializer is configured with `ignoreUnknownKeys = true`, so future fields added to the metadata schema do not break older clients.
+  </Step>
+  <Step title="Check the timestamp (anti-replay)">
+    After deserialization, the `timestamp` field is compared against `MIN_TIMESTAMP`. If the metadata timestamp is older than this floor, Accrescent treats it as a potential replay and refuses to use it.
+  </Step>
+</Steps>
+
+## Replay protection
+
+Replay attacks work by serving a victim a legitimately-signed but outdated version of the metadata. Because the signature is valid, a naive client would accept it — and the attacker could use this to hide security updates or re-enable vulnerable app versions.
+
+Accrescent defends against replay attacks with a compiled-in timestamp floor:
+
+```kotlin Constants.kt
+const val MIN_TIMESTAMP: Long = 1761251784
+```
+
+Any signed metadata whose `timestamp` is below this value is rejected, even if the signature is cryptographically valid. When Accrescent ships a new release, this floor can be advanced to match the current time, tightening the replay window.
+
+<Note>
+  The `MIN_TIMESTAMP` value of `1761251784` (Unix time) is compiled into each release. An attacker would need to serve metadata signed after that date — which only the repository's private key holder can produce.
+</Note>
+
+## What happens if verification fails
+
+If signature verification fails for any reason, Accrescent raises a `GeneralSecurityException` and aborts the metadata fetch. No install, update, or app listing will proceed with unverified metadata. The user sees an error and no sensitive decision is made on the basis of tampered data.
+
+## HTTPS and the role of TLS
+
+Accrescent fetches both the metadata and the signature file over HTTPS. TLS provides confidentiality and a first layer of integrity. However, Accrescent does **not** rely on TLS alone for security: even if TLS were compromised (for example, through a rogue certificate authority), the minisign signature check would still catch any tampered metadata because it requires the repository's Ed25519 private key.
+
+<Tip>
+  Defence in depth: TLS prevents eavesdropping and casual tampering; the minisign signature prevents tampering even by a network-level adversary who can issue valid TLS certificates.
+</Tip>
+
+## Related pages
+
+- [Signing key pinning](/security/signing-key-pinning) — what the verified metadata contains and how it is enforced at install time
+- [Verifying Accrescent](/security/verifying-accrescent) — why verifying the Accrescent APK itself is the root of the trust chain
+- [Security overview](/security/overview) — end-to-end description of the install verification flow

@@ -1,0 +1,76 @@
+{
+  "projectType": "saas",
+  "projectName": "Accrescent",
+  "projectDescription": "A novel Android app store focused on security, privacy, and usability, featuring app signing key pinning, signed repository metadata, and automatic unprivileged updates.",
+  "theme": "almond",
+  "primaryColor": "#6a1995",
+  "lightColor": "#b48cc4",
+  "darkColor": "#ebeaec",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Using Accrescent",
+            "pages": [
+              "using/browsing-apps",
+              "using/installing-apps",
+              "using/managing-updates",
+              "using/settings"
+            ]
+          },
+          {
+            "group": "Security & Privacy",
+            "pages": [
+              "security/overview",
+              "security/signing-key-pinning",
+              "security/repository-verification",
+              "security/verifying-accrescent"
+            ]
+          },
+          {
+            "group": "Contributing",
+            "pages": [
+              "contributing/overview",
+              "contributing/building",
+              "contributing/code-style",
+              "contributing/submitting-apps"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "App signing key pinning to prevent supply chain attacks",
+    "Signed repository metadata with cryptographic verification",
+    "Automatic, unprivileged, unattended updates on Android 12+",
+    "First-class support for split APKs",
+    "No remote APK signing — developers retain control",
+    "No account requirement for installing apps",
+    "Material You dynamic color theming",
+    "Meaningful quality control for submitted apps"
+  ],
+  "publicApiSurface": [
+    "AllApps screen — Browse all available apps in the store",
+    "InstalledApps screen — View apps installed via Accrescent",
+    "UpdatableApps screen — View and apply available updates",
+    "AppDetails screen — Install, update, open, or unarchive specific apps",
+    "Settings screen — Configure theme, dynamic color, automatic updates, and network conditions",
+    "AutoUpdateWorker — Background worker running every 8 hours to check and apply updates",
+    "RepoDataFetcherImpl.fetchRepoData() — Fetches and signature-verifies the signed repository manifest",
+    "AppManager.downloadAndInstall() — Downloads, verifies, and installs split APKs",
+    "AppManager.isUpdateAvailable() — Checks if an update is available for a given app",
+    "AppManager.uninstall() — Uninstalls an app via Android PackageInstaller",
+    "AppManager.unarchive() — Restores an archived app on Android 15+"
+  ]
+}

@@ -1,0 +1,99 @@
+---
+title: "Installing apps"
+description: "How to install, open, uninstall, and manage apps in Accrescent."
+---
+
+Accrescent installs apps directly from the store without requiring an account. Every package is cryptographically verified before installation.
+
+## Installing an app
+
+<Steps>
+  <Step title="Find the app">
+    Open the **All Apps** tab and scroll to the app you want, or tap a direct link to open its details screen.
+  </Step>
+  <Step title="Tap Install">
+    On the app details screen, tap the **Install** button. Accrescent immediately enqueues a download worker and begins fetching the package.
+  </Step>
+  <Step title="Wait for the download">
+    The **Cancel** button replaces **Install** while the download is in progress. A circular progress indicator overlays the app icon, and a status line shows the current percentage and total file size.
+  </Step>
+  <Step title="Installation completes">
+    Once the package is verified and committed to the Android installer, the progress indicator clears and the action buttons update to **Uninstall** and **Open**.
+  </Step>
+</Steps>
+
+<Note>
+  No account or sign-in is required. Accrescent never asks for personal information to install an app.
+</Note>
+
+## Tracking progress
+
+During a download you can see two forms of feedback:
+
+- **Progress ring** — A circular indicator overlays the app icon. It shows exact download progress as a filled arc once byte-level progress data becomes available. Before that, it shows as an indeterminate spinner.
+- **Status text** — A line below the version string shows the percentage complete and the total download size, for example: `42.0% of 18 MB`.
+
+While the package is being installed (after the download finishes), both the status text and indicator switch to an indeterminate state showing "Installing…".
+
+## Cancelling a download
+
+Tap **Cancel** at any point during the download to abort. The **Cancel** button is enabled while the download is enqueued or running. It becomes temporarily disabled once the package has been handed off to the Android installer — at that point the installation cannot be interrupted.
+
+After cancellation, the details screen shows a brief notice that the download was cancelled, and the **Install** button reappears.
+
+## Opening an installed app
+
+Once an app is installed and enabled, an **Open** button appears on its details screen. Tap **Open** to launch the app directly from Accrescent.
+
+<Tip>
+  The **Open** button only appears for apps that have a launchable activity. System-level or background-only apps may show only **Uninstall**.
+</Tip>
+
+## Enabling a disabled app
+
+If an app is installed but disabled on your device, the details screen shows an **Enable** button instead of **Open**. Tapping **Enable** opens the Android system **App info** screen for that app, where you can re-enable it.
+
+<Note>
+  On Android 14 (API 34) and above, Accrescent can update a disabled app without requiring you to re-enable it first. On earlier versions, you must enable the app before an update can be applied.
+</Note>
+
+## Uninstalling an app
+
+Tap **Uninstall** on the app details screen to remove the app from your device. Android's standard uninstall flow handles the removal. After uninstallation, the details screen returns to showing the **Install** button.
+
+<Warning>
+  Uninstalling an app removes all of its data from your device. This action cannot be undone from within Accrescent.
+</Warning>
+
+## App archiving (Android 15+)
+
+On Android 15 (API 35) and above, the Android system can archive apps to free up storage while preserving the app's data and icon. Archived apps are not fully uninstalled; they are suspended and can be restored.
+
+When an app is archived, the **Install** button is replaced with **Unarchive**. Tapping **Unarchive** restores the app through the Android system archiving mechanism.
+
+## Installation errors
+
+If an installation fails, an error box appears on the details screen. Common errors include:
+
+<AccordionGroup>
+  <Accordion title="App incompatible">
+    The app's package requirements are not met by your device. This may be due to an unsupported CPU architecture or Android version.
+  </Accordion>
+  <Accordion title="App store unreachable">
+    Accrescent could not connect to the store server. Check your network connection and try again.
+  </Accordion>
+  <Accordion title="Package verification failed">
+    The downloaded package did not pass cryptographic verification. This protects you from tampered or corrupted files. Try installing again; if the problem persists, report it.
+  </Accordion>
+  <Accordion title="Storage error">
+    Your device does not have enough free storage to complete the installation. Free up space and try again.
+  </Accordion>
+  <Accordion title="Blocked by another package">
+    Another app on your device is preventing the installation. The error message identifies the blocking package when possible.
+  </Accordion>
+  <Accordion title="Timeout">
+    The download or installation took too long to complete. Try again on a faster or more stable network connection.
+  </Accordion>
+</AccordionGroup>
+
+Tap the dismiss icon on the error box to clear it. The action buttons return to their previous state so you can retry.

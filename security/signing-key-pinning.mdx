@@ -1,0 +1,132 @@
+---
+title: "Signing key pinning"
+description: "How Accrescent pins each app's signing certificate in the repository metadata and enforces it at install time."
+---
+
+App signing key pinning is one of Accrescent's primary defences against supply-chain attacks. It ensures that even if an attacker gains the ability to serve you a modified APK, they cannot do so with a different signing key than the one the developer originally registered.
+
+## What it prevents
+
+Without key pinning, a compromised distribution channel could:
+
+- Replace a legitimate APK with a malicious one signed under a different key
+- Silently swap a developer's signing key (as Google Play App Signing allows)
+- Deliver a re-signed APK that Android would otherwise accept because the package name matches
+
+With key pinning, **only APKs signed by the original developer's key are accepted**, regardless of who is serving them.
+
+<Warning>
+  Key pinning is only as trustworthy as the metadata that carries the pins. Accrescent protects the metadata itself through [signed repository verification](/security/repository-verification), so both mechanisms must hold together.
+</Warning>
+
+## Where the pin lives
+
+The repository metadata file (`repodata.1.json`) contains an entry for each app. Each entry is a JSON object with two fields:
+
+```json repodata.1.json (excerpt)
+{
+  "timestamp": 1761300000,
+  "apps": {
+    "com.example.app": {
+      "min_version_code": 42,
+      "signing_cert_hash": "e3b0c44298fc1c149afb..."
+    }
+  }
+}
+```
+
+The fields map directly to the `App` data class in the client:
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `min_version_code` | `Int` | Minimum acceptable `versionCode`; enforces downgrade protection |
+| `signing_cert_hash` | `String` | Lowercase hex SHA-256 of the DER-encoded signing certificate |
+
+The entire metadata file is covered by a minisign signature that Accrescent verifies before reading any of its contents. See [Repository verification](/security/repository-verification) for details.
+
+## No remote APK signing
+
+Accrescent does not re-sign apps. Every developer submits APKs already signed with their own key, and that key's SHA-256 certificate hash is what gets pinned in the metadata. This differs fundamentally from services like Google Play App Signing, where the distribution platform controls the signing key.
+
+<Note>
+  Because no re-signing occurs, a developer's signing certificate hash is stable for the entire lifetime of the app. You can compare it against values the developer publishes independently.
+</Note>
+
+## How the check works at install time
+
+When you install or update an app, Accrescent's `AppManager` performs the verification before committing the Android `PackageInstaller` session.
+
+### Extracting the APK's signing info
+
+Accrescent writes the APK splits to a temporary file and uses `PackageManager.getPackageArchiveInfo()` with both `GET_SIGNING_CERTIFICATES` and `GET_SIGNATURES` flags (the latter is required to work around an Android 13 bug on some devices):
+
+```kotlin AppManager.kt
+val flags = PackageManager.GET_SIGNING_CERTIFICATES or PackageManager.GET_SIGNATURES
+val packageInfo = context.packageManager.getPackageArchiveInfo(tmpFile.toString(), flags)
+```
+
+### Rejecting multiple signers
+
+APKs with more than one signer are rejected outright:
+
+```kotlin AppManager.kt
+if (signingInfo.hasMultipleSigners()) {
+    returnErr(PackageVerificationError.MultipleSigners)
+}
+```
+
+This prevents schemes where an attacker adds their key alongside the legitimate one.
+
+### Matching the pinned hash
+
+Accrescent computes the SHA-256 hash of each certificate in the APK's signing certificate history and checks whether any of them matches the `signing_cert_hash` from the repository metadata:
+
+```kotlin AppManager.kt
+val signedByRequiredCert = signingInfo
+    .signingCertificateHistory
+    .map { hexSha256Sum(it.toByteArray()) }
+    .contains(requiredSigner)
+
+if (!signedByRequiredCert) {
+    returnErr(PackageVerificationError.NotSignedByRequiredSigner)
+}
+```
+
+Using `signingCertificateHistory` (rather than just `currentSigners`) means that even apps that have performed a key rotation are handled correctly — as long as the pinned certificate is anywhere in the chain.
+
+### Enforcing the minimum version code
+
+After verifying the signing certificate, Accrescent checks that the APK's `versionCode` is at or above `min_version_code`:
+
+```kotlin AppManager.kt
+if (packageInfo.longVersionCode < minVersionCode) {
+    returnErr(PackageVerificationError.MinimumVersionNotMet)
+}
+```
+
+This prevents downgrade attacks where an attacker delivers an older, potentially vulnerable version.
+
+## Possible verification errors
+
+<AccordionGroup>
+  <Accordion title="MultipleSigners">
+    The APK was signed by more than one certificate. Accrescent rejects all multi-signer APKs unconditionally.
+  </Accordion>
+  <Accordion title="NotSignedByRequiredSigner">
+    None of the certificates in the APK's signing history matched the `signing_cert_hash` in the repository metadata. The APK may have been tampered with or re-signed.
+  </Accordion>
+  <Accordion title="MinimumVersionNotMet">
+    The APK's `versionCode` is lower than `min_version_code`. This could indicate a downgrade attempt.
+  </Accordion>
+  <Accordion title="SigningInfoNotPresent">
+    `PackageManager` returned a `PackageInfo` without signing information. This usually indicates a malformed or unsupported APK format.
+  </Accordion>
+  <Accordion title="PackageParsingFailed">
+    `PackageManager` could not parse the APK at all. The file may be corrupt or incompatible with the device.
+  </Accordion>
+</AccordionGroup>
+
+## Related pages
+
+- [Repository verification](/security/repository-verification) — how the metadata that carries the pins is itself protected
+- [Security overview](/security/overview) — the full install-time verification flow end to end

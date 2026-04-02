@@ -1,0 +1,78 @@
+---
+title: 'Code style'
+description: "Accrescent's coding conventions: line length, import style, formatter usage, library policy, and language preferences."
+---
+
+Check your branch against these conventions before opening a pull request. Doing so in advance speeds up the review process for everyone.
+
+## Formatting
+
+### Line length
+
+Wrap lines at 100 columns. This is a soft limit — lines may extend slightly beyond 100 columns if wrapping would produce uglier code, but keep overruns to a few columns at most.
+
+### Imports
+
+Do not use glob (wildcard) imports. Every import should name a specific symbol.
+
+To have Android Studio enforce this automatically:
+
+<Steps>
+  <Step title="Open the Kotlin code style settings">
+    In Android Studio, go to **File** → **Settings** → **Editor** → **Code Style** → **Kotlin**.
+  </Step>
+  <Step title="Enable single name imports">
+    Under the **Imports** tab, enable **Use single name import** (and set the "Top-level symbols" and "Extension functions" counts to 1 if they are not already).
+  </Step>
+</Steps>
+
+### Formatter
+
+Use Android Studio's built-in formatter to format your code before committing. To run it:
+
+<Steps>
+  <Step title="Open the Reformat Code dialog">
+    Go to **Code** → **Reformat Code** (or press `Ctrl+Alt+L` / `Cmd+Option+L`).
+  </Step>
+  <Step title="Enable all options">
+    Check both **Rearrange entries** and **Cleanup code** before clicking **Run**.
+  </Step>
+</Steps>
+
+<Tip>
+  Run **Reformat Code** on any file you touch, not just the lines you changed. This keeps the codebase consistently formatted and reduces noise in diffs.
+</Tip>
+
+## Library policy
+
+Avoid introducing unnecessary third-party dependencies. Before adding a library, consider whether the functionality can be implemented reasonably with the existing dependencies or the Android SDK.
+
+When a third-party library is genuinely needed, it should meet all of the following criteria:
+
+- **Well-maintained** — active development and timely security patches
+- **Widely used** — significant adoption in the Android ecosystem
+- **Memory-safe** — written in a memory-safe language (Kotlin, Java, or Rust)
+
+<Note>
+  Accrescent is a high-level application. The bar for introducing new dependencies — especially native ones — is high.
+</Note>
+
+## Language preferences
+
+When choosing a language for new code, follow this order of preference:
+
+<CardGroup cols={3}>
+  <Card title="1. Kotlin" icon="k">
+    The primary language for all application code. Prefer Kotlin for everything unless there is a specific reason not to.
+  </Card>
+  <Card title="2. Rust" icon="gear">
+    Acceptable for performance-critical paths where a lower-level language is genuinely required. Rust is preferred over C or C++ because it is memory-safe.
+  </Card>
+  <Card title="3. Other native" icon="triangle-exclamation">
+    Use only as a last resort. Memory-unsafe native code (C, C++) should not appear in Accrescent.
+  </Card>
+</CardGroup>
+
+<Warning>
+  Accrescent is a high-level Android application and should rarely if ever need low-level or unsafe native code. If you think you need C or C++, reconsider the design first.
+</Warning>

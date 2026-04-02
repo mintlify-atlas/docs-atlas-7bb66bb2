@@ -1,0 +1,61 @@
+---
+title: 'Contributing overview'
+description: 'How to get involved with Accrescent development — where to ask questions, find work, report bugs, and disclose vulnerabilities.'
+---
+
+Contributions to Accrescent are welcome. This page covers the channels and resources you need to get oriented before diving in.
+
+<Note>
+  Accrescent is currently in early alpha. The codebase, APIs, and processes are still evolving. Expect things to change.
+</Note>
+
+## Get help
+
+The [#accrescent:matrix.org](https://matrix.to/#/#accrescent:matrix.org) Matrix room is the primary place for development discussion and questions. If you are unsure where to start, ask there first.
+
+The lead developer, [@lberrymage:matrix.org](https://matrix.to/#/@lberrymage:matrix.org), is available on Matrix and welcomes direct messages as well.
+
+<Tip>
+  Questions asked on Matrix are visible to the whole community and receive faster responses than GitHub issues. Prefer Matrix for open-ended questions and design discussions.
+</Tip>
+
+## Find work
+
+The [public roadmap](https://github.com/orgs/accrescent/projects/4/views/2) lists the project's current priorities and planned work. If you want to contribute but are not sure what to work on, the roadmap is the best starting point.
+
+## Report bugs and suggest features
+
+Each Accrescent repository has its own issue tracker. Use the tracker in the repository most relevant to your report.
+
+If your issue spans multiple repositories, relates to infrastructure, or you are unsure where it belongs, open it in the [meta repository](https://github.com/accrescent/meta). Issues are transferred to the appropriate repository when necessary.
+
+<CardGroup cols={2}>
+  <Card title="Main repository" icon="github" href="https://github.com/accrescent/accrescent/issues">
+    Bugs and feature requests for the Accrescent client app.
+  </Card>
+  <Card title="Meta repository" icon="github" href="https://github.com/accrescent/meta/issues">
+    Cross-cutting issues, infrastructure, and anything that doesn't fit elsewhere.
+  </Card>
+</CardGroup>
+
+## Report vulnerabilities
+
+Report all security vulnerabilities according to Accrescent's security policy, which is documented in `SECURITY.md` at the root of the main repository. Do not open public GitHub issues for security vulnerabilities.
+
+## Translations
+
+Accrescent uses [Hosted Weblate](https://hosted.weblate.org/engage/accrescent/) for translations. If you would like to help translate the app into your language, you can contribute directly through Weblate without any local build setup.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Building" icon="hammer" href="/contributing/building">
+    Set up your environment and build Accrescent from source.
+  </Card>
+  <Card title="Code style" icon="code" href="/contributing/code-style">
+    Formatting rules and conventions to follow before opening a PR.
+  </Card>
+  <Card title="Submitting apps" icon="upload" href="/contributing/submitting-apps">
+    Information for app developers who want to publish on Accrescent.
+  </Card>
+</CardGroup>

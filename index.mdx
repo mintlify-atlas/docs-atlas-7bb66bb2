@@ -1,97 +1,69 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Accrescent — A secure Android app store"
+description: "A novel Android app store focused on security, privacy, and usability. Install apps with confidence knowing every package is cryptographically verified."
 ---
 
-## Setting up
+Accrescent is a private and secure Android app store built with modern security practices in mind. It provides strong validity guarantees for every installed app, automatic unprivileged updates, and a frictionless experience — no account required.
 
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Installation" icon="mobile" href="/installation">
+    Download and install Accrescent on your Android device
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Browse apps, install your first app, and set up automatic updates
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Security Overview" icon="shield-halved" href="/security/overview">
+    Learn how Accrescent protects you from supply chain attacks
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Contributing" icon="code-pull-request" href="/contributing/overview">
+    Help build the future of secure Android app distribution
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## Why Accrescent?
 
-Everything you need to create world-class documentation.
+Most app stores leave users exposed: apps can be silently re-signed by the store, update channels can be compromised, and there is no cryptographic guarantee that what you install is what the developer published. Accrescent addresses these issues at the architectural level.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
+<CardGroup cols={2}>
+  <Card title="Signing key pinning" icon="key" href="/security/signing-key-pinning">
+    Each app's signing certificate is pinned in the repository — Accrescent cannot swap certificates without detection
   </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
+  <Card title="Signed repository metadata" icon="file-signature" href="/security/repository-verification">
+    The entire app catalog is cryptographically signed and verified on every fetch
   </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
+  <Card title="Automatic updates" icon="arrows-rotate" href="/using/managing-updates">
+    Android 12+ devices receive silent, unprivileged updates without any user interaction
   </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
+  <Card title="No account required" icon="user-slash" href="/using/installing-apps">
+    Browse and install apps without creating an account or sharing personal data
   </Card>
-</Columns>
+</CardGroup>
 
-## Need inspiration?
+## Get up and running
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<Steps>
+  <Step title="Download Accrescent">
+    Grab the latest APK from [accrescent.app](https://accrescent.app) and install it on your Android 10+ device.
+  </Step>
+  <Step title="Browse the app catalog">
+    Open Accrescent to see all available apps. Tap any app to view details, screenshots, and version information.
+  </Step>
+  <Step title="Install your first app">
+    Tap **Install** on any app. Accrescent downloads, verifies, and installs the app — no account needed.
+  </Step>
+  <Step title="Enable automatic updates">
+    On Android 12+, go to **Settings → Automatic updates** to keep all your apps up to date silently in the background.
+  </Step>
+</Steps>
+
+## System requirements
+
+| Requirement | Minimum |
+|---|---|
+| Android version | Android 10 (API 29) |
+| Automatic updates | Android 12 (API 31) |
+| App archiving support | Android 15 (API 35) |
+
+<Note>
+  Accrescent is currently in early alpha. Some features may change as the project matures. Follow the [public roadmap](https://github.com/orgs/accrescent/projects/4/views/2) to track upcoming work.
+</Note>
